@@ -1,7 +1,7 @@
 # Intel Arc Pro B70 LLM Inference Server — Windows Edition
 
 Windows installer for the **Intel Arc Pro B70** vLLM inference stack.
-Companion to the [Ubuntu Server edition](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup).
+Companion to the [Ubuntu Server edition](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-ubuntu-server).
 
 ## How It Works
 
@@ -35,7 +35,7 @@ the Intel Arc Pro Windows driver.
 
 The actual setup of the vLLM stack inside WSL is delegated to the proven
 `odin-b70-setup.sh` from the
-[Ubuntu repo](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup),
+[Ubuntu repo](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-ubuntu-server),
 so both editions stay in sync. Fixes pushed there flow into Windows installs
 automatically. This includes the hardening pushed in the Ubuntu repo
 commit `2806ef6`:
@@ -47,10 +47,14 @@ commit `2806ef6`:
   grace period, 60-second consecutive failure threshold, and automatic
   cleanup of leaked shared-memory segments between restarts.
 - `tee -a` for `/tmp/vllm.log` so pre-hang debug context survives restarts.
-- Intel Battlemage GuC firmware 70.45.2 pulled from kernel.org
-  linux-firmware.git into `/lib/firmware/xe/bmg_guc_70.bin`, addressing
-  blitter-engine (bcs) hangs observed on older 70.44.1. Requires a reboot
-  (inside WSL: `wsl --shutdown` then restart) to activate.
+- Intel Battlemage GuC firmware 70.60.0 (and HuC 8.2.10) pulled from
+  kernel.org linux-firmware.git HEAD, zstd-compressed and installed as
+  `/lib/firmware/xe/bmg_guc_70.bin.zst`, addressing blitter-engine (bcs)
+  hangs observed on older 70.44.1 that cascaded into vLLM EngineCore RPC
+  timeouts. The xe driver loads `.bin.zst`, so the file MUST be zstd
+  compressed — installing a raw `.bin` will crash all GPUs with -EINVAL.
+  Requires a reboot (inside WSL: `wsl --shutdown` then restart) to
+  activate.
 
 ## Requirements
 
@@ -65,7 +69,7 @@ commit `2806ef6`:
 
 ```powershell
 # Open PowerShell as Administrator
-git clone https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-windows.git
+git clone https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-ubuntu-server-windows.git
 cd arc-pro-b70-inference-setup-windows
 
 Set-ExecutionPolicy -Scope Process Bypass -Force
@@ -142,7 +146,7 @@ Full transcript log: `C:\ProB70\install.log`.
 | `wsl --update` fails | Manually install the WSL2 kernel: <https://aka.ms/wsl2kernel> |
 | GPUs not visible inside WSL | Make sure you installed the **Intel Arc Pro Graphics** driver (not the consumer Arc driver) and rebooted. Verify: `wsl -d Ubuntu-24.04 -- ls /dev/dri/` should show `card0`+ devices. |
 | systemd not running in WSL | Check `/etc/wsl.conf` has `[boot]\nsystemd=true`, then `wsl --shutdown` and re-launch. |
-| vLLM container fails inside WSL | The Ubuntu setup script's troubleshooting table applies — see [Ubuntu README](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup#troubleshooting). |
+| vLLM container fails inside WSL | The Ubuntu setup script's troubleshooting table applies — see [Ubuntu README](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-ubuntu-server#troubleshooting). |
 | LAN clients can't reach port 8000 | Add a Windows Firewall rule: `New-NetFirewallRule -DisplayName "vLLM" -Direction Inbound -LocalPort 8000 -Protocol TCP -Action Allow`. WSL2 forwards localhost automatically but external traffic needs the firewall opened. |
 | Slow inference vs native Ubuntu | WSL2 GPU passthrough adds ~5-15% overhead vs bare metal. For maximum throughput, use the Ubuntu Server edition. |
 

@@ -22,7 +22,7 @@ $WSLDistro = "Ubuntu-24.04"
 $WSLUser   = "user"
 
 # Ubuntu repo with the actual setup script
-$UbuntuRepo = "https://github.com/Hal9000AIML/arc-pro-b70-inference-setup.git"
+$UbuntuRepo = "https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-ubuntu-server.git"
 
 New-Item -ItemType Directory -Force -Path $StateDir | Out-Null
 Start-Transcript -Path $LogFile -Append | Out-Null
@@ -181,12 +181,12 @@ if (Step-Required "ubuntu_setup" $Steps) {
     $setupCmd = @"
 set -e
 cd ~
-if [ ! -d arc-pro-b70-inference-setup ]; then
+if [ ! -d arc-pro-b70-inference-setup-ubuntu-server ]; then
     sudo apt-get update
     sudo apt-get install -y git
     git clone $UbuntuRepo
 fi
-cd arc-pro-b70-inference-setup
+cd arc-pro-b70-inference-setup-ubuntu-server
 git pull
 chmod +x odin-b70-setup.sh
 sudo ./odin-b70-setup.sh
