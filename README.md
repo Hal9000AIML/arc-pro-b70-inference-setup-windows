@@ -36,8 +36,21 @@ the Intel Arc Pro Windows driver.
 The actual setup of the vLLM stack inside WSL is delegated to the proven
 `odin-b70-setup.sh` from the
 [Ubuntu repo](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup),
-so both editions stay in sync — fixes pushed there flow into Windows installs
-automatically.
+so both editions stay in sync. Fixes pushed there flow into Windows installs
+automatically. This includes the hardening pushed in the Ubuntu repo
+commit `2806ef6`:
+
+- HTTP-health-based idempotency guard in `start_vllm.sh` (replaces the
+  previous pgrep-based check that was fooled by orphaned worker processes
+  after a vLLM crash).
+- HTTP-health-based watchdog in `watchdog_vllm.sh` with a 10-minute startup
+  grace period, 60-second consecutive failure threshold, and automatic
+  cleanup of leaked shared-memory segments between restarts.
+- `tee -a` for `/tmp/vllm.log` so pre-hang debug context survives restarts.
+- Intel Battlemage GuC firmware 70.45.2 pulled from kernel.org
+  linux-firmware.git into `/lib/firmware/xe/bmg_guc_70.bin`, addressing
+  blitter-engine (bcs) hangs observed on older 70.44.1. Requires a reboot
+  (inside WSL: `wsl --shutdown` then restart) to activate.
 
 ## Requirements
 
