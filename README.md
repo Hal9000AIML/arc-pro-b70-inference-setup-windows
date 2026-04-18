@@ -8,7 +8,7 @@ Windows installer for the **Intel Arc Pro B70** vLLM inference stack (WSL2 + Doc
 |---|---|---|
 | **this repo** | Windows (WSL2 + Docker) installer for vLLM XPU TP=4 — one big model sharded across 4 B70s | Windows workstation, want max single-model throughput (~540 tok/s on 4× B70) |
 | [arc-pro-b70-inference-setup-ubuntu-server](https://github.com/Hal9000AIML/arc-pro-b70-inference-setup-ubuntu-server) | Bare-metal Ubuntu autoinstall ISO, BIOS/hardware guide, DDR4 tuning, firstboot service | Building the box from scratch (Linux host, no WSL2 overhead) |
-| [arc-pro-b70-ubuntu-llm-inference-kit](https://github.com/Hal9000AIML/arc-pro-b70-ubuntu-llm-inference-kit) | llama.cpp (not vLLM) tuning kit: 11 cherry-picks + Mesa 26 + backend rules. Runs multiple different models concurrently, one per card | You need multi-tier inference (chat + code + fast + reasoning at once), not a single sharded model |
+| [arc-pro-b70-ubuntu-gpu-speedup-bugfixes](https://github.com/Hal9000AIML/arc-pro-b70-ubuntu-gpu-speedup-bugfixes) | llama.cpp (not vLLM) tuning kit: 11 cherry-picks + Mesa 26 + backend rules. Runs multiple different models concurrently, one per card | You need multi-tier inference (chat + code + fast + reasoning at once), not a single sharded model |
 
 **Choosing between this repo and the llama.cpp kit:** if your workload is "one model, max tok/s" use this (vLLM TP=4). If your workload is "several models, different sizes, all available at once" use the llama.cpp kit. vLLM cannot run multiple models on one TP=4 deployment; llama.cpp cannot shard one model across GPUs.
 
